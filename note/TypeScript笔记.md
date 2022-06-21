@@ -154,3 +154,40 @@ console.log(greeter(user))
 
 
 
+## 类
+
+ TypeScript 支持 JavaScript 的新特性，比如支持基于类的面向对象编程。
+
+让我们创建一个 `Person` 类，它带有一个构造函数和一些公共字段。因为类的字段包含了接口所需要的字段，所以他们能很好的兼容。
+
+还要注意的是，我在类的声明上会注明所有的成员变量，这样比较一目了然。
+
+```ts
+(() => {
+  //定义接口
+  interface IPerson {
+    firstName: String;
+    lastName: String;
+  }
+
+  // 定义类
+  class Person {
+    firstName: string;
+    lastName: string;
+    fullName: string;
+    constructor(firstName: string, lastName: string) {
+      this.firstName = firstName;
+      this.lastName = lastName;
+      this.fullName = this.firstName + "_" + this.lastName;
+    }
+  }
+
+  // 输出姓名
+  function showFullName(person: IPerson) {
+    return person.firstName + "_" + person.lastName;
+  }
+  const person = new Person("诸葛", "孔明");
+})();
+
+```
+
