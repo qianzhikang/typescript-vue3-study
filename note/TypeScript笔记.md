@@ -122,3 +122,35 @@ console.log(greeter(user))
 类似地，尝试删除 `greeter` 调用的所有参数。 TypeScript 会告诉你使用了非期望个数的参数调用了这个函数。 在这两种情况中，TypeScript提供了静态的代码分析，它可以分析代码结构和提供的类型注解。
 
 要注意的是尽管有错误，`greeter.js` 文件还是被创建了。 就算你的代码里有错误，你仍然可以使用 TypeScript。但在这种情况下，TypeScript 会警告你代码可能不会按预期执行。
+
+## 接口
+
+这里我们使用接口来描述一个拥有 `firstName` 和 `lastName` 字段的对象。 在 `TypeScript` 里，只在两个类型内部的结构兼容，那么这两个类型就是兼容的。 这就允许我们在实现接口时候只要保证包含了接口要求的结构就可以，而不必明确地使用 `implements` 语句。
+
+```ts
+(() => {
+  //定义一个接口
+  interface IPerson {
+    //姓氏
+    firstName: String;
+    //名字
+    lastName: String;
+  }
+  // 返回全名，规定入参为定义的IPerson类型
+  function showFullName(person: IPerson) {
+    return person.firstName + "_" + person.lastName;
+  }
+  // 定义对象
+  const person = {
+     //当注释掉其中一个属性之后，下方调用时传入参数就会报错,提示需要IPerson类型的数据，需要firstName和lastName
+    firstName: "东方",
+    lastName: "不败",
+  };
+  //传入非IPerson类型出现报错
+  console.log(showFullName(person));
+})();
+
+```
+
+
+

@@ -1,0 +1,12 @@
+(() => {
+    // 返回全名
+    function showFullName(person) {
+        return person.firstName + "_" + person.lastName;
+    }
+    // 定义对象
+    const person = {
+        firstName: "东方",
+        lastName: "不败",
+    };
+    console.log(showFullName(person));
+})();
