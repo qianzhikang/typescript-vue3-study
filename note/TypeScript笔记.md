@@ -191,3 +191,143 @@ console.log(greeter(user))
 
 ```
 
+## 使用webpack打包TS
+
+1）新建目录如下：
+
+--> `/build` 存放 `webpack.config.js` 配置文件
+
+```js
+const { CleanWebpackPlugin } = require("clean-webpack-plugin");
+const HtmlWebpackPlugin = require("html-webpack-plugin");
+const path = require("path");
+
+const isProd = process.env.NODE_ENV === "production"; // 是否生产环境
+
+function resolve(dir) {
+  return path.resolve(__dirname, "..", dir);
+}
+
+module.exports = {
+  mode: isProd ? "production" : "development",
+  entry: {
+    app: "./src/main.ts",
+  },
+
+  output: {
+    path: resolve("dist"),
+    filename: "[name].[contenthash:8].js",
+  },
+
+  module: {
+    rules: [
+      {
+        test: /\.tsx?$/,
+        use: "ts-loader",
+        include: [resolve("src")],
+      },
+    ],
+  },
+
+  plugins: [
+    new CleanWebpackPlugin({}),
+
+    new HtmlWebpackPlugin({
+      template: "./public/index.html",
+    }),
+  ],
+
+  resolve: {
+    extensions: [".ts", ".tsx", ".js"],
+  },
+
+  devtool: isProd ? "cheap-module-source-map" : "cheap-module-eval-source-map",
+
+  devServer: {
+    host: "localhost", // 主机名
+    stats: "errors-only", // 打包日志输出输出错误信息
+    port: 8081,
+    open: true,
+  },
+};
+```
+
+--> `/public` 存放 `index.html`入口文件
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>webpack打包ts配置</title>
+  </head>
+  <body></body>
+</html>
+```
+
+--> `/src` 存放 `main.ts` 文件
+
+2）在项目目录下使用命令初始化ts的配置文件
+
+```sh
+tsc --init
+```
+
+3）在项目目录下初始化webpack配置
+
+```sh
+npm init
+```
+
+4）安装依赖（`package.json 下`，`以下版本为兼容状态，可能存在不兼容的情况。--2022.6.21`）
+
+```js
+"devDependencies": {
+    "typescript": "^4.0.5",
+    "webpack": "^4.41.5",
+    "webpack-cli": "^3.3.10",
+    "webpack-dev-server": "^3.10.2",
+    "clean-webpack-plugin": "^3.0.0",
+    "cross-env": "^7.0.2",
+    "html-webpack-plugin": "^4.5.0",
+    "ts-loader": "^8.0.11"
+  }
+```
+
+5）写入运行脚本（`package.json 下`，`使用cross-env主要实现跨系统环境脚本`）
+
+```js
+"scripts": {
+    "dev": "cross-env NODE_ENV=development webpack-dev-server --config build/webpack.config.js",
+    "build": "cross-env NODE_ENV=production webpack --config build/webpack.config.js"
+  },
+```
+
+6）在`main.ts`中写入内容运行测试：
+
+```sh
+npm run dev
+```
+
+结果：
+
+![测试结果](https://pic-go.oss-cn-shanghai.aliyuncs.com/typora-img/202206211328029.png)
+
+7）打包
+
+```sh
+npm run build
+```
+
+打包输入内容：
+
+![image-20220621135652247](https://pic-go.oss-cn-shanghai.aliyuncs.com/typora-img/202206211356288.png)
+
+## TypeScript常用语法
+
+### 基础类型
+
+
+
