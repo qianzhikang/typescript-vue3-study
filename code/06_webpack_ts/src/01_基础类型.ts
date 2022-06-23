@@ -103,4 +103,35 @@
     };
   }
   console.log(getObj({ name: "ts", age: 20 }));
+
+  console.log("--------------------------------------");
+  // 联合类型 Union Types 表示取值可以为多种类型中的一种
+  function getString(str: number | string): string {
+    return str.toString();
+  }
+  console.log(getString("123"));
+  console.log(getString(123));
+
+  // 类型断言
+  // 传入一个number或string 返回他的长度
+  // 类型断言，告诉编辑器 str的类型
+  // 方式1 ： <类型>值
+  function getStrLength(str: number | string): number {
+    if ((<string>str).length) {
+      // 方式2： 值 as 类型
+      return (str as string).length;
+    } else {
+      return str.toString.length;
+    }
+  }
+
+  // 类型推断:没有明确的指定类型的时候推测出一个类型
+  let text; // 没有赋值时any类型
+  text = 123;
+  text = "hello";
+
+  let num = 100; // number 类型
+  // num = 'hello'  // error
+  let st = "hello";
+  // st = 100 //error
 })();
