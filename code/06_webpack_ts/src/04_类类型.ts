@@ -3,8 +3,6 @@
   interface IFly {
     fly(): void;
   }
-
-  //
   class Person implements IFly {
     fly(): void {
       console.log("i can fly");
