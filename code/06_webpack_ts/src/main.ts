@@ -9,5 +9,9 @@
 // import "./09_readonly修饰符";
 // import "./10_存取器";
 // import "./11_静态成员";
-import "./12_抽象类";
+// import "./12_抽象类";
+// import "./13_函数";
+// import "./14_可选参数和默认参数";
+// import "./15_剩余参数";
+import "./16_函数重载";
 document.write("hello world!");
