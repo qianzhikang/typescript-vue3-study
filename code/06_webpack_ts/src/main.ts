@@ -13,5 +13,10 @@
 // import "./13_函数";
 // import "./14_可选参数和默认参数";
 // import "./15_剩余参数";
-import "./16_函数重载";
+// import "./16_函数重载";
+// import "./17_泛型";
+// import "./18_多个泛型参数的函数";
+// import "./19_泛型接口";
+// import "./20_泛型类";
+import "./21_泛型约束";
 document.write("hello world!");
