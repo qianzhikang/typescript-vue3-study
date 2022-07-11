@@ -415,3 +415,278 @@ export default {
 }
 </script>
 ```
+
+
+
+### Vue3 与 Vue2的生命周期对比
+
+#### Vue2生命周期图
+
+![lifecycle-vue2](https://pic-go.oss-cn-shanghai.aliyuncs.com/typora-img/202207081043143.png)
+
+
+
+#### Vue3生命周期图：
+
+![lifecycle-vue3](https://pic-go.oss-cn-shanghai.aliyuncs.com/typora-img/202207081040663.svg)
+
+#### Vue2.x对比差异
+
+- `beforeCreate` -> 使用 `setup()`
+- `created` -> 使用 `setup()`
+- `beforeMount` -> `onBeforeMount`
+- `mounted` -> `onMounted`
+- `beforeUpdate` -> `onBeforeUpdate`
+- `updated` -> `onUpdated`
+- `beforeDestroy` -> `onBeforeUnmount`
+- `destroyed` -> `onUnmounted`
+- `errorCaptured` -> `onErrorCaptured`
+
+
+
+### 自定义hook函数
+
+- 使用Vue3的组合API封装的可复用的功能函数
+
+#### 需求1: 收集用户鼠标点击的页面坐标
+
+hooks/useMousePosition.ts
+
+```js
+import { ref, onMounted, onUnmounted } from 'vue'
+/* 
+收集用户鼠标点击的页面坐标
+*/
+export default function useMousePosition () {
+  // 初始化坐标数据
+  const x = ref(-1)
+  const y = ref(-1)
+
+  // 用于收集点击事件坐标的函数
+  const updatePosition = (e: MouseEvent) => {
+    x.value = e.pageX
+    y.value = e.pageY
+  }
+
+  // 挂载后绑定点击监听
+  onMounted(() => {
+    document.addEventListener('click', updatePosition)
+  })
+
+  // 卸载前解绑点击监听
+  onUnmounted(() => {
+    document.removeEventListener('click', updatePosition)
+  })
+
+  return {x, y}
+}
+<template>
+<div>
+  <h2>x: {{x}}, y: {{y}}</h2>
+</div>
+</template>
+
+<script>
+
+import {
+  ref
+} from "vue"
+/* 
+在组件中引入并使用自定义hook
+自定义hook的作用类似于vue2中的mixin技术
+自定义Hook的优势: 很清楚复用功能代码的来源, 更清楚易懂
+*/
+import useMousePosition from './hooks/useMousePosition'
+
+export default {
+  setup() {
+
+    const {x, y} = useMousePosition()
+
+    return {
+      x,
+      y,
+    }
+  }
+}
+</script>
+```
+
+
+
+#### 需求2: 封装发ajax请求的hook函数
+
+hooks/useRequest.ts
+
+##### 类型不确定问题
+
+> 在这个场景中，如果想要监视返回数据data的数组长度，直接使用`data.value.length`将会出现报错，因为data的类型是未知的；为了解决这个问题使用到了`范型+接口约束`的方式，在函数调用时，指定类型。
+
+```ts
+import { ref } from 'vue'
+import axios from 'axios'
+
+/* 
+使用axios发送异步ajax请求
+*/
+export default function useUrlLoader<T>(url: string) {
+
+  const result = ref<T | null>(null)
+  const loading = ref(true)
+  const errorMsg = ref(null)
+
+  axios.get(url)
+    .then(response => {
+      loading.value = false
+      result.value = response.data
+    })
+    .catch(e => {
+      loading.value = false
+      errorMsg.value = e.message || '未知错误'
+    })
+
+  return {
+    loading,
+    result,
+    errorMsg,
+  }
+}
+<template>
+<div class="about">
+  <h2 v-if="loading">LOADING...</h2>
+  <h2 v-else-if="errorMsg">{{errorMsg}}</h2>
+  <!-- <ul v-else>
+    <li>id: {{result.id}}</li>
+    <li>name: {{result.name}}</li>
+    <li>distance: {{result.distance}}</li>
+  </ul> -->
+
+  <ul v-for="p in result" :key="p.id">
+    <li>id: {{p.id}}</li>
+    <li>title: {{p.title}}</li>
+    <li>price: {{p.price}}</li>
+  </ul>
+  <!-- <img v-if="result" :src="result[0].url" alt=""> -->
+</div>
+</template>
+
+<script lang="ts">
+import {
+  watch
+} from "vue"
+import useRequest from './hooks/useRequest'
+
+// 地址数据接口
+interface AddressResult {
+  id: number;
+  name: string;
+  distance: string;
+}
+
+// 产品数据接口
+interface ProductResult {
+  id: string;
+  title: string;
+  price: number;
+}
+
+export default {
+  setup() {
+
+    // const {loading, result, errorMsg} = useRequest<AddressResult>('/data/address.json')
+    const {loading, result, errorMsg} = useRequest<ProductResult[]>('/data/products.json')
+
+    watch(result, () => {
+      if (result.value) {
+        console.log(result.value.length) // 有提示
+      }
+    })
+
+    return {
+      loading,
+      result, 
+      errorMsg
+    }
+  }
+}
+</script>
+```
+
+
+
+### toRefs的作用
+
+把一个响应式对象转换成普通对象，该普通对象的每个 property 都是一个 ref
+
+应用: 当从合成函数返回响应式对象时，toRefs 非常有用，这样消费组件就可以在不丢失响应式的情况下对返回的对象进行分解使用
+
+问题: reactive 对象取出的所有属性值都是非响应式的
+
+解决: 利用 toRefs 可以将一个响应式 reactive 对象的所有原始属性转换为响应式的 ref 属性
+
+```vue
+<template>
+  <h2>App</h2>
+  <h3>foo: {{foo}}</h3>
+  <h3>bar: {{bar}}</h3>
+  <h3>foo2: {{foo2}}</h3>
+  <h3>bar2: {{bar2}}</h3>
+
+
+</template>
+
+<script lang="ts">
+import { reactive, toRefs } from 'vue'
+/*
+toRefs:
+  将响应式对象中所有属性包装为ref对象, 并返回包含这些ref对象的普通对象
+  应用: 当从合成函数返回响应式对象时，toRefs 非常有用，
+        这样消费组件就可以在不丢失响应式的情况下对返回的对象进行分解使用
+*/
+export default {
+
+  setup () {
+
+    const state = reactive({
+      foo: 'a',
+      bar: 'b',
+    })
+
+    const stateAsRefs = toRefs(state)
+
+    setTimeout(() => {
+      state.foo += '++'
+      state.bar += '++'
+    }, 2000);
+
+    const {foo2, bar2} = useReatureX()
+
+    return {
+      // ...state,
+      ...stateAsRefs,
+      foo2, 
+      bar2
+    }
+  },
+}
+
+function useReatureX() {
+  const state = reactive({
+    foo2: 'a',
+    bar2: 'b',
+  })
+
+  setTimeout(() => {
+    state.foo2 += '++'
+    state.bar2 += '++'
+  }, 2000);
+
+  return toRefs(state)
+}
+
+</script>
+```
+
+
+
+### ref获取元素
