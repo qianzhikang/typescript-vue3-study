@@ -1,41 +1,23 @@
 <template>
   <div>
-    <h2>toRef的使用</h2>
-    <!-- 未解构返回时渲染方式 -->
-    <!-- <h3>name:{{ state.name }}</h3>
-    <h3>age:{{ state.age }}</h3> -->
-    <!-- 解构返回的state2中的属性 -->
-    <h3>name:{{ name }}</h3>
-    <h3>age:{{ age }}</h3>
-    <button @click="timeStop">stop</button>
+    <h2>ref获取页面中的元素</h2>
+    <input type="text" ref="inputRef"/>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, toRefs } from "vue";
+import { defineComponent,onMounted,ref } from "vue";
 export default defineComponent({
   name: "App",
+  // 需求：当页面加载后，页面中的文本框可以自动获取焦点
   setup() {
-    const state = reactive({
-      name: "qzk",
-      age: 20,
-    });
-    // 使用toRefs可以把一个响应式对象转换成普通对象，该普通对象的每个属性都是一个ref
-    const state2 = toRefs(state)
-    // 响应式数据测试
-    const timer = setInterval(() => {
-      state.age += 1;
-    }, 1000);
-    const timeStop=() => {
-      clearInterval(timer)
-    }
+    const inputRef = ref<HTMLElement | null>(null)
+    // 页面加载后的生命周期
+    onMounted(()=>{
+      inputRef.value&&inputRef.value.focus() //自动获取焦点
+    })
     return {
-      // state,
-      // 使用解构的方式返回state,这时就变成了{name:'qzk',age:20},不再是响应式数据了。
-      // ...state,
-      // 使用toRefs转换之后的state2解构后，数据依然是响应式的
-      ...state2,
-      timeStop,
+      inputRef
     };
   },
 });

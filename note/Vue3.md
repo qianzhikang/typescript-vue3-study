@@ -690,3 +690,43 @@ function useReatureX() {
 
 
 ### ref获取元素
+
+利用ref函数获取组件中的标签元素
+
+> 固定写法：
+>
+> html标签中 ref=“自定义变量名”
+>
+> setup中使用 const “自定义变量名” = ref(null)
+
+功能需求: 让输入框自动获取焦点
+
+```vue
+<template>
+  <h2>App</h2>
+  <input type="text">---
+  <input type="text" ref="inputRef">
+</template>
+
+<script lang="ts">
+import { onMounted, ref } from 'vue'
+/* 
+ref获取元素: 利用ref函数获取组件中的标签元素
+功能需求: 让输入框自动获取焦点
+*/
+export default {
+  setup() {
+    //固定写法，变量名和html中保持一致，ref类型
+    const inputRef = ref<HTMLElement|null>(null)
+
+    onMounted(() => {
+      inputRef.value && inputRef.value.focus()
+    })
+
+    return {
+      inputRef
+    }
+  },
+}
+</script>
+```
